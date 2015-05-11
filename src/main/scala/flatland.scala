@@ -1,5 +1,6 @@
-package org.eldhuset.qlearning
+package org.eldhuset.it3708.flatland
 
+import org.eldhuset.it3708.qlearning
 import java.io.File
 import scala.io.Source
 
@@ -33,7 +34,7 @@ class Flatland(
       height: Int,
       start: (Int, Int),
       foodCount: Int,
-      rows: Seq[CellRow]) {
+      rows: Seq[CellRow]) extends qlearning.Scenario[Flatland] {
   def apply(row: Int, column: Int): Cell = rows(row)(column)
 
   override def toString: String = rows map (_.toString) mkString "\n"
@@ -71,4 +72,8 @@ object Flatland {
       foodCount = foodCount,
       rows = cellRows)
   }
+}
+
+class FlatlandAction extends qlearning.Action[Flatland] {
+  def apply(scenario: Flatland): Flatland = scenario
 }

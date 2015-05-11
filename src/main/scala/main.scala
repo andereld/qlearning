@@ -1,5 +1,6 @@
-package org.eldhuset.qlearning
+package org.eldhuset.it3708
 
+import org.eldhuset.it3708.flatland.{Flatland, FlatlandAction}
 import java.io.File
 
 case class Config(scenario: File = null)
@@ -18,7 +19,8 @@ object Main {
     config match {
       case Some(config) => {
         val flatland = Flatland.fromFile(config.scenario)
-        println(flatland)
+        val action = new FlatlandAction()
+        println(flatland.update(action))
       }
       case None =>
         // Invalid configuration. Error message will be displayed by scopt.
