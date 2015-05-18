@@ -1,17 +1,32 @@
 package org.eldhuset.it3708.flatland
 
-import org.eldhuset.it3708.qlearning
-
 import java.io.File
 import scala.io.Source
 
-class Flatland(
+case class Flatland(
       width: Int,
       height: Int,
-      start: (Int, Int),
-      foodCount: Int,
-      rows: Seq[CellRow]) extends qlearning.Scenario[Flatland] {
+      start: Coordinates,
+      initialFoodCount: Int,
+      rows: Seq[CellRow]) {
+
   def apply(row: Int, column: Int): Cell = rows(row)(column)
+
+  def updated(row: Int, column: Int, value: Cell): Flatland = {
+    val newRow = rows(row).updated(column, value)
+    Flatland(
+      width = width,
+      height = height,
+      start = start,
+      initialFoodCount = initialFoodCount,
+      rows = rows.updated(row, newRow))
+  }
+
+  def updated(position: Coordinates, value: Cell): Flatland =
+    updated(row = position.row, column = position.column, value = value)
+
+  def foodCount: Int =
+    rows.foldLeft(0) ((acc: Int, row: CellRow) => acc + row.foodCount)
 
   override def toString: String = rows map (_.toString) mkString "\n"
 }
@@ -39,13 +54,13 @@ object Flatland {
     val cellRows = for {
       row <- rows
       cells = stringToIntList(row) map intToCell
-    } yield new CellRow(cells = cells)
+    } yield CellRow(cells = cells)
 
-    return new Flatland(
+    return Flatland(
       width = width,
       height = height,
-      start = (startX, startY),
-      foodCount = foodCount,
+      start = Coordinates(row = startY, column = startX),
+      initialFoodCount = foodCount,
       rows = cellRows)
   }
 }
