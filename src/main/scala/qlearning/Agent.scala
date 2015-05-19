@@ -7,7 +7,7 @@ import scala.annotation.tailrec
 case class Agent(scenario: Flatland, q: Q) {
   def run(callback: ScenarioRepresentation => Unit): Statistics = {
     val initialState = State.initialState(scenario)
-    val initialStats = Statistics(totalFood =  scenario.initialFoodCount)
+    val initialStats = Statistics(totalFood = scenario.initialFoodCount)
 
     runner(initialState, scenario, q, initialStats)(callback)
   }

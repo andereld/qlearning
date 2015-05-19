@@ -6,7 +6,7 @@ import java.io.File
 
 import org.eldhuset.it3708.qlearning.ScenarioRepresentation
 
-case class Config(scenario: File = null, steps: Int = 100, delay: Int = 500)
+case class Config(scenario: File = null, steps: Int = 1000, delay: Int = 500)
 
 object Main {
   val optionsParser = new scopt.OptionParser[Config]("qlearning") {
@@ -18,7 +18,7 @@ object Main {
     opt[Int]('k', "steps") optional() valueName("<n>") action {
       (k, c) => c.copy(steps = k)
     } text(
-      "The number of iterations for the Q Learning algorithm. (Default = 100.)")
+      "The number of iterations for the Q Learning algorithm. (Default = 1000.)")
 
     opt[Int]('d', "delay") optional() valueName("<n>") action {
       (d, c) => c.copy(delay = d)
@@ -27,7 +27,7 @@ object Main {
       "(Default = 500.)")
   }
 
-  def main (args: Array[String]): Unit = {
+  def main(args: Array[String]): Unit = {
     val config = optionsParser.parse(args, Config())
 
     config match {
