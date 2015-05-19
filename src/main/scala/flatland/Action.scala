@@ -10,7 +10,10 @@ sealed trait Action {
 
   def consumeCell(p: Coordinates, scenario: Flatland): (Cell, Flatland) = {
     val consumedCell = scenario(p.row, p.column)
-    val newScenario = scenario.updated(p, EmptyCell())
+    val newScenario = if (consumedCell.isInstanceOf[StartingCell])
+      scenario
+    else
+      scenario.updated(p, EmptyCell())
 
     (consumedCell, newScenario)
   }

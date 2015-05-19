@@ -36,9 +36,17 @@ object Main {
         val steps = config.steps
 
         prepareScreen()
+        val t0 = System.currentTimeMillis()
         println(
           s"Running Q learning on ${config.scenario} with $steps iterations.")
+
         val q = qlearning.learnQ(scenario = flatland, steps = steps)
+
+        val t1 = System.currentTimeMillis()
+        val delta = math.round((t1 - t0) / 1000.0)
+        println(s"Finished in approximately $delta s.")
+        println("Press Enter to visualize the resulting agent.")
+        scala.io.StdIn.readLine()
 
         val agent = Agent(scenario = flatland, q = q)
         val stats = agent run { (representation) =>

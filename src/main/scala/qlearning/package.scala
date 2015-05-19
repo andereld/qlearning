@@ -17,7 +17,7 @@ package object qlearning {
   type BackupList = List[(State, Action, Double)]
   def BackupList(): BackupList = List[(State, Action, Double)]()
 
-  val backupSteps = 4
+  val backupSteps = 6
 
   def learnQ(scenario: Flatland, steps: Int): Q = {
     val beginningState = State.initialState(scenario)
@@ -30,32 +30,35 @@ package object qlearning {
   def learn(scenario: Flatland, q: Q, beginningState: State, steps: Int,
       k: Int = 1): Q =
     k match {
-      case n: Int if n == steps + 1 => q
-      case n: Int if n > 0          => learn(
-        scenario = scenario,
-        q = solve(scenario, beginningState, q, k),
-        beginningState = beginningState,
-        steps = steps,
-        k = k + 1)
+      case n: Int if n == steps + 1 =>
+        q
+      case n: Int if n > 0 =>
+        learn(
+          scenario = scenario,
+          q = solve(scenario, beginningState, q, k),
+          beginningState = beginningState,
+          steps = steps,
+          k = k + 1)
     }
 
   @tailrec
   def solve(scenario: Flatland, state: State, q: Q, k: Int,
-      backupList: BackupList = BackupList()): Q = {
+      backupList: BackupList = BackupList(), limit: Int = 500): Q = {
 
-    if (state.finished(scenario))
+    if (state.finished(scenario) || limit == 0)
       return q
 
-    val action = selectAction(state, q, k)
+    val randomProbability = 0.3 / math.log10(k)
+    val action = selectAction(state, q, randomProbability)
     val (consumedCell, newScenario) = action(state, scenario)
     val newState = state.updated(
       newPosition = action.coordinates(state, scenario),
       consumedCell = consumedCell)
     val reward = consumedCell.reward(scenario)
-    val newQ = updateQ(q, state, newState, action, reward)
+    val newQ = updateQ(q, state, newState, action, reward, backupList)
     val newBackupList = updateBackupList(state, action, reward, backupList)
 
-    solve(newScenario, newState, newQ, k, newBackupList)
+    solve(newScenario, newState, newQ, k, newBackupList, limit - 1)
   }
 
   def updateBackupList(state: State, action: Action, reward: Double,
@@ -68,8 +71,8 @@ package object qlearning {
     case None                              => Action.randomAction
   }
 
-  def selectAction(state: State, q: Q, k: Int): Action =
-    if (Random.nextDouble < 3.0 / math.log(k))
+  def selectAction(state: State, q: Q, randomProbability: Double): Action =
+    if (Random.nextDouble < randomProbability)
       Action.randomAction
     else
       bestAction(state, q)
@@ -81,12 +84,12 @@ package object qlearning {
   }
 
 
+  @tailrec
   def updateQ(q: Q, oldState: State, newState: State, action: Action,
-      reward: Double, step: Int = backupSteps)
-      : Q = {
+      reward: Double, backupList: BackupList, step: Int = backupSteps): Q = {
 
-    val learningRate = 0.1
-    val discountFactor = 0.5
+    val learningRate = 0.2
+    val discountFactor = 0.6
 
     val calculatedReward = calculateReward(
       learningRate = learningRate,
@@ -101,7 +104,19 @@ package object qlearning {
     val newActionMapping = oldActionMapping + (action -> calculatedReward)
     val newQ = q + (oldState -> newActionMapping)
 
-    newQ
+    if (step == 0 || backupList.isEmpty) {
+      newQ
+    } else {
+      val (backupState, backupAction, backupReward) :: rest = backupList
+      updateQ(
+        q = newQ,
+        oldState = backupState,
+        newState = oldState,
+        action = backupAction,
+        reward = backupReward,
+        backupList = rest,
+        step = step - 1)
+    }
   }
 
   def calculateReward(learningRate: Double, discount: Double,
