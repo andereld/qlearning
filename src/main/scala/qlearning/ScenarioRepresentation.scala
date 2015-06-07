@@ -40,11 +40,10 @@ case class ScenarioRepresentation(scenario: Flatland, state: State, q: Q) {
         s"${Console.RED}( P )${Console.RESET}"
       case FoodCell(_) =>
         s"${Console.YELLOW}( F )${Console.RESET}"
-      case StartingCell() => {
+      case StartingCell() =>
         val action = bestActionForCoordinates(coordinates)
         val actionString = stringForAction(action)
         s"${Console.GREEN}( $actionString )${Console.RESET}"
-      }
       case EmptyCell() =>
         val action = bestActionForCoordinates(coordinates)
         val actionString = stringForAction(action)

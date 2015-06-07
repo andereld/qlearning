@@ -30,9 +30,9 @@ package object qlearning {
   def learn(scenario: Flatland, q: Q, beginningState: State, steps: Int,
       k: Int = 1): Q =
     k match {
-      case n: Int if n == steps + 1 =>
+      case n if n == steps + 1 =>
         q
-      case n: Int if n > 0 =>
+      case n if n > 0 =>
         learn(
           scenario = scenario,
           q = solve(scenario, beginningState, q, k),
