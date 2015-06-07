@@ -2,9 +2,8 @@ package org.eldhuset.it3708
 
 import org.eldhuset.it3708.flatland.Flatland
 import org.eldhuset.it3708.qlearning.Agent
-import java.io.File
-
 import org.eldhuset.it3708.qlearning.ScenarioRepresentation
+import java.io.File
 
 case class Config(scenario: File = null, steps: Int = 1000, delay: Int = 500)
 
